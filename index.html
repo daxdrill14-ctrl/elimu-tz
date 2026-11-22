@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SikionBeats - Cheza & Pakua</title>
+    <title>SikionBeats - YouTube Music Hub</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -26,7 +26,7 @@
             background: radial-gradient(circle at top right, #1e1b4b, var(--bg-dark));
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 230px;
+            padding-bottom: 240px;
         }
 
         header {
@@ -69,7 +69,7 @@
 
         .hero {
             text-align: center;
-            padding: 32px 5% 18px;
+            padding: 30px 5% 16px;
         }
 
         .hero h1 {
@@ -82,6 +82,36 @@
             font-size: 0.92rem;
             max-width: 580px;
             margin: 0 auto 20px;
+        }
+
+        .custom-link-box {
+            max-width: 640px;
+            margin: 0 auto 24px;
+            padding: 0 5%;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .custom-link-box input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-glass);
+            background: var(--card-bg);
+            color: #fff;
+            outline: none;
+        }
+
+        .custom-link-box button {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #090d16;
+            font-weight: 700;
+            cursor: pointer;
         }
 
         .tabs {
@@ -171,29 +201,29 @@
 
         .actions {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn {
             flex: 1;
-            padding: 9px 6px;
+            padding: 9px;
             border-radius: 9px;
             border: none;
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.84rem;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
         }
 
         .btn-play {
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-        }
-
-        .btn-dl {
             background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
             color: #090d16;
+        }
+
+        .btn-yt {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
         }
 
         .player-dock {
@@ -255,9 +285,14 @@
     </header>
 
     <section class="hero">
-        <h1>Sikiliza na Pakua Nyimbo</h1>
-        <p>Cheza nyimbo za YouTube moja kwa moja kwenye player na utumie kitufe cha Pakua kuunganisha na huduma yako ya upakuaji.</p>
+        <h1>Sikiliza Nyimbo Kutoka YouTube</h1>
+        <p>Chagua wimbo kwenye orodha au bandika link ya YouTube hapa chini ucheze moja kwa moja.</p>
     </section>
+
+    <div class="custom-link-box">
+        <input type="text" id="customYtInput" placeholder="Bandika link ya YouTube hapa (mfano: https://youtu.be/...)">
+        <button type="button" onclick="playFromInput()">▶ Cheza Link</button>
+    </div>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="setGenre('all', this)">Zote</button>
@@ -284,10 +319,6 @@
     </div>
 
     <script>
-        // Kama una server/API ya kudownload (mfano kwenye Render), weka URL yake hapa.
-        // Ukiiacha tupu (""), kitufe cha Pakua kitafungua link ya YouTube ya wimbo husika.
-        const DOWNLOAD_API_BASE = "";
-
         const songs = [
             {
                 title: "Bongo Vibe Mix",
@@ -314,16 +345,28 @@
 
         const grid = document.getElementById('songsGrid');
         const searchInput = document.getElementById('searchInput');
+        const customYtInput = document.getElementById('customYtInput');
         const ytPlayer = document.getElementById('ytPlayer');
         const nowPlayingTitle = document.getElementById('nowPlayingTitle');
         const nowPlayingArtist = document.getElementById('nowPlayingArtist');
         let activeGenre = 'all';
 
-        function getDownloadHref(ytId) {
-            const ytUrl = `https://www.youtube.com/watch?v=${ytId}`;
-            if (!DOWNLOAD_API_BASE) return ytUrl;
-            const cleanBase = DOWNLOAD_API_BASE.replace(/\/+$/, '');
-            return `${cleanBase}/download?url=${encodeURIComponent(ytUrl)}`;
+        function extractYouTubeId(input) {
+            if (!input) return null;
+            const trimmed = input.trim();
+            if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+            const match = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function playFromInput() {
+            const id = extractYouTubeId(customYtInput.value);
+            if (!id) {
+                nowPlayingTitle.textContent = "Link si sahihi — tumia link kamili ya YouTube";
+                nowPlayingArtist.textContent = "Mfano: https://youtu.be/VIDEO_ID";
+                return;
+            }
+            playYtSong(id, "Wimbo Kutoka Kwenye Link", "Custom YouTube Link");
         }
 
         function renderSongs() {
@@ -343,7 +386,7 @@
 
             list.forEach((song) => {
                 const thumbUrl = `https://img.youtube.com/vi/${song.ytId}/hqdefault.jpg`;
-                const dlUrl = getDownloadHref(song.ytId);
+                const watchUrl = `https://www.youtube.com/watch?v=${song.ytId}`;
 
                 grid.innerHTML += `
                     <div class="song-card">
@@ -355,7 +398,7 @@
                         </div>
                         <div class="actions">
                             <button class="btn btn-play" onclick="playYtSong('${song.ytId}', '${escapeJs(song.title)}', '${escapeJs(song.artist)}')">▶ Cheza</button>
-                            <a href="${dlUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-dl">⬇ Pakua</a>
+                            <a href="${watchUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-yt">YouTube ↗</a>
                         </div>
                     </div>
                 `;
