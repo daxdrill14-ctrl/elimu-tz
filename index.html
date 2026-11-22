@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SikionBeats - Pakua Nyimbo & Beats</title>
+    <title>SikionBeats - YouTube Music Hub</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -26,7 +26,7 @@
             background: radial-gradient(circle at top right, #1e1b4b, var(--bg-dark));
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: 110px;
+            padding-bottom: 230px;
         }
 
         header {
@@ -80,7 +80,7 @@
         .hero p {
             color: var(--text-muted);
             font-size: 0.92rem;
-            max-width: 560px;
+            max-width: 580px;
             margin: 0 auto 20px;
         }
 
@@ -136,6 +136,15 @@
             border-color: var(--neon-cyan);
         }
 
+        .thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            background: #111827;
+        }
+
         .genre-tag {
             display: inline-block;
             padding: 4px 10px;
@@ -144,12 +153,12 @@
             font-weight: 700;
             background: rgba(0, 242, 254, 0.14);
             color: var(--neon-cyan);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             width: fit-content;
         }
 
         .song-title {
-            font-size: 1.1rem;
+            font-size: 1.08rem;
             font-weight: 700;
             margin-bottom: 4px;
         }
@@ -171,48 +180,68 @@
             border-radius: 9px;
             border: none;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.84rem;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
         }
 
         .btn-play {
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-        }
-
-        .btn-download {
             background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
             color: #090d16;
         }
 
-        .now-playing-bar {
+        .btn-yt {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .player-dock {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(9, 13, 22, 0.94);
+            background: rgba(9, 13, 22, 0.96);
             backdrop-filter: blur(16px);
             border-top: 1px solid var(--border-glass);
             padding: 10px 5%;
             z-index: 200;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
         }
 
-        .now-playing-info {
-            font-size: 0.85rem;
+        .player-meta {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .player-status {
+            font-size: 0.88rem;
             color: var(--neon-cyan);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-weight: 600;
         }
 
-        audio {
+        .player-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .yt-frame-box {
+            width: 220px;
+            max-width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border-glass);
+        }
+
+        .yt-frame-box iframe {
             width: 100%;
-            height: 36px;
+            height: 100%;
+            border: 0;
         }
     </style>
 </head>
@@ -226,8 +255,8 @@
     </header>
 
     <section class="hero">
-        <h1>Sikiliza na Pakua Nyimbo</h1>
-        <p>Mkusanyiko wa ngoma, beats/instrumentals, na nyimbo mbalimbali za kupakua moja kwa moja.</p>
+        <h1>Sikiliza Nyimbo Kutoka YouTube</h1>
+        <p>Chagua wimbo au beat upate kusikiliza moja kwa moja ndani ya website bila kujaza storage ya GitHub.</p>
     </section>
 
     <div class="tabs">
@@ -239,40 +268,52 @@
 
     <div class="container" id="songsGrid"></div>
 
-    <div class="now-playing-bar">
-        <div class="now-playing-info" id="nowPlayingText">Chagua wimbo kusikiliza...</div>
-        <audio id="mainAudioPlayer" controls></audio>
+    <div class="player-dock">
+        <div class="yt-frame-box">
+            <iframe
+                id="ytPlayer"
+                src="https://www.youtube.com/embed/jfKfPfyJRdk?rel=0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
+        <div class="player-meta">
+            <div class="player-status" id="nowPlayingTitle">Chagua wimbo wa kuanza kusikiliza</div>
+            <div class="player-sub" id="nowPlayingArtist">YouTube Player</div>
+        </div>
     </div>
 
     <script>
+        // Weka YouTube Video ID ya kila wimbo hapa (mfano: kutoka youtu.be/VIDEO_ID au watch?v=VIDEO_ID)
         const songs = [
             {
-                title: "Mfano wa Wimbo 1",
-                artist: "Msanii A",
+                title: "Bongo Vibe Mix",
+                artist: "Bongo Flava Selection",
                 genre: "bongo",
                 genreLabel: "Bongo Flava",
-                url: "songs/wimbo1.mp3"
+                ytId: "jfKfPfyJRdk"
             },
             {
-                title: "Faded Style Beat",
-                artist: "Sikion Prod",
+                title: "Chill Instrumental Beat",
+                artist: "Beats & Instrumentals",
                 genre: "beats",
                 genreLabel: "Beats / Instrumentals",
-                url: "songs/faded-beat.mp3"
+                ytId: "5qap5aO4i9A"
             },
             {
-                title: "Night Drive Mix",
-                artist: "Various Artists",
+                title: "Late Night Acoustic",
+                artist: "International Mix",
                 genre: "intl",
                 genreLabel: "International",
-                url: "songs/night-drive.mp3"
+                ytId: "DWcJFNfaw9c"
             }
         ];
 
         const grid = document.getElementById('songsGrid');
         const searchInput = document.getElementById('searchInput');
-        const audioPlayer = document.getElementById('mainAudioPlayer');
-        const nowPlayingText = document.getElementById('nowPlayingText');
+        const ytPlayer = document.getElementById('ytPlayer');
+        const nowPlayingTitle = document.getElementById('nowPlayingTitle');
+        const nowPlayingArtist = document.getElementById('nowPlayingArtist');
         let activeGenre = 'all';
 
         function renderSongs() {
@@ -290,29 +331,35 @@
                 return;
             }
 
-            list.forEach((song, idx) => {
+            list.forEach((song) => {
+                const thumbUrl = `https://img.youtube.com/vi/${song.ytId}/hqdefault.jpg`;
+                const watchUrl = `https://www.youtube.com/watch?v=${song.ytId}`;
+
                 grid.innerHTML += `
                     <div class="song-card">
                         <div>
+                            <img src="${thumbUrl}" alt="${song.title}" class="thumb" loading="lazy">
                             <span class="genre-tag">${song.genreLabel}</span>
                             <div class="song-title">${song.title}</div>
                             <div class="artist-name">${song.artist}</div>
                         </div>
                         <div class="actions">
-                            <button class="btn btn-play" onclick="playSong(${idx})">▶ Sikiliza</button>
-                            <a href="${song.url}" download class="btn btn-download">⬇ Pakua</a>
+                            <button class="btn btn-play" onclick="playYtSong('${song.ytId}', '${escapeJs(song.title)}', '${escapeJs(song.artist)}')">▶ Cheza</button>
+                            <a href="${watchUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-yt">YouTube ↗</a>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function playSong(index) {
-            const song = songs[index];
-            if (!song) return;
-            audioPlayer.src = song.url;
-            audioPlayer.play();
-            nowPlayingText.textContent = "Inacheza sasa: " + song.title + " — " + song.artist;
+        function escapeJs(str) {
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        function playYtSong(ytId, title, artist) {
+            ytPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+            nowPlayingTitle.textContent = "Inacheza: " + title;
+            nowPlayingArtist.textContent = artist;
         }
 
         function setGenre(genre, btn) {
