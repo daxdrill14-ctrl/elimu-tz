@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SikionBeats - YouTube Music Hub</title>
+    <title>SikionBeats - Cheza & Pakua</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -171,29 +171,29 @@
 
         .actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn {
             flex: 1;
-            padding: 9px;
+            padding: 9px 6px;
             border-radius: 9px;
             border: none;
             font-weight: 600;
-            font-size: 0.84rem;
+            font-size: 0.82rem;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
         }
 
         .btn-play {
-            background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
-            color: #090d16;
-        }
-
-        .btn-yt {
             background: rgba(255, 255, 255, 0.12);
             color: #fff;
+        }
+
+        .btn-dl {
+            background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
+            color: #090d16;
         }
 
         .player-dock {
@@ -255,8 +255,8 @@
     </header>
 
     <section class="hero">
-        <h1>Sikiliza Nyimbo Kutoka YouTube</h1>
-        <p>Chagua wimbo au beat upate kusikiliza moja kwa moja ndani ya website bila kujaza storage ya GitHub.</p>
+        <h1>Sikiliza na Pakua Nyimbo</h1>
+        <p>Cheza nyimbo za YouTube moja kwa moja kwenye player na utumie kitufe cha Pakua kuunganisha na huduma yako ya upakuaji.</p>
     </section>
 
     <div class="tabs">
@@ -284,7 +284,10 @@
     </div>
 
     <script>
-        // Weka YouTube Video ID ya kila wimbo hapa (mfano: kutoka youtu.be/VIDEO_ID au watch?v=VIDEO_ID)
+        // Kama una server/API ya kudownload (mfano kwenye Render), weka URL yake hapa.
+        // Ukiiacha tupu (""), kitufe cha Pakua kitafungua link ya YouTube ya wimbo husika.
+        const DOWNLOAD_API_BASE = "";
+
         const songs = [
             {
                 title: "Bongo Vibe Mix",
@@ -316,6 +319,13 @@
         const nowPlayingArtist = document.getElementById('nowPlayingArtist');
         let activeGenre = 'all';
 
+        function getDownloadHref(ytId) {
+            const ytUrl = `https://www.youtube.com/watch?v=${ytId}`;
+            if (!DOWNLOAD_API_BASE) return ytUrl;
+            const cleanBase = DOWNLOAD_API_BASE.replace(/\/+$/, '');
+            return `${cleanBase}/download?url=${encodeURIComponent(ytUrl)}`;
+        }
+
         function renderSongs() {
             const q = searchInput.value.toLowerCase();
             grid.innerHTML = '';
@@ -333,7 +343,7 @@
 
             list.forEach((song) => {
                 const thumbUrl = `https://img.youtube.com/vi/${song.ytId}/hqdefault.jpg`;
-                const watchUrl = `https://www.youtube.com/watch?v=${song.ytId}`;
+                const dlUrl = getDownloadHref(song.ytId);
 
                 grid.innerHTML += `
                     <div class="song-card">
@@ -345,7 +355,7 @@
                         </div>
                         <div class="actions">
                             <button class="btn btn-play" onclick="playYtSong('${song.ytId}', '${escapeJs(song.title)}', '${escapeJs(song.artist)}')">▶ Cheza</button>
-                            <a href="${watchUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-yt">YouTube ↗</a>
+                            <a href="${dlUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-dl">⬇ Pakua</a>
                         </div>
                     </div>
                 `;
